@@ -40,3 +40,9 @@ The system uses the **PDO (PHP Data Objects)** driver because it provides a more
 ```php
 $dsn = "mysql:host=$host;dbname=$db;charset=utf8mb4";
 $pdo = new PDO($dsn, $user, $pass, $options);
+
+User Interface (UI) Overhaul: Rebranded the application from a generic management system to SwiftCare.
+
+Front-end Optimization: Integrated a custom CSS variable system to manage brand colors and added the Inter typeface for enhanced readability in clinical environments.
+
+Navigation Logic: Streamlined the user journey by implementing a sticky header with a primary CTA (Call to Action) for appointment booking, improving accessibility for administrative staff.
