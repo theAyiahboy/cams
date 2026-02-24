@@ -26,3 +26,11 @@ CAMS is a web-based solution developed by **GoldByte** to streamline healthcare 
 * **[Your Name]** - Project Lead / Backend Dev
 * **[Member Name]** - Database Administrator
 * **[Member Name]** - Frontend Developer
+
+## 📊 Current Progress (Phase 2)
+- [x] Folder structure & Git setup.
+- [x] Database schema design & import.
+- [x] Modern UI Shell (Header/Footer/CSS).
+- [x] Established successful PHP-to-MySQL connection.
+- [ ] CRUD: Appointment Booking (`add.php`).
+- [ ] API: Arkesel SMS Integration.
