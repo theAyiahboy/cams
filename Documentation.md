@@ -30,3 +30,13 @@ The system uses a relational schema to ensure data integrity and scalability.
 * **Week 2:** UI/UX Design (Header/Footer) and Database Connection.
 * **Week 3:** Core CRUD Development (Add/View Appointments).
 * **Week 4:** VVIP Logic & SMS API Integration.
+
+## 6. Phase 2 Technical Details
+
+### Connectivity Logic
+The system uses the **PDO (PHP Data Objects)** driver because it provides a more secure way to handle database interactions compared to the older `mysqli` extension. 
+
+**Connection String Example:**
+```php
+$dsn = "mysql:host=$host;dbname=$db;charset=utf8mb4";
+$pdo = new PDO($dsn, $user, $pass, $options);
