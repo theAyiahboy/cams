@@ -7,7 +7,7 @@ $error = '';
 
 // If already logged in, route them away from the login page
 if (isset($_SESSION['user_role'])) {
-    if ($_SESSION['user_role'] == 'admin') header("Location: index.php");
+    if ($_SESSION['user_role'] == 'admin') header("Location: admin_portal.php");
     elseif ($_SESSION['user_role'] == 'doctor') header("Location: doctor_portal.php");
     elseif ($_SESSION['user_role'] == 'patient') header("Location: patient_portal.php");
     exit();
@@ -21,7 +21,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $error = "Please enter your email and password.";
     } else {
         try {
-            // THE FIX: Check BOTH email and contact columns 
+            // Check BOTH email and contact columns 
             $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ? OR contact = ?");
             $stmt->execute([$login_id, $login_id]);
             $user = $stmt->fetch();
@@ -36,10 +36,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $_SESSION['user_contact'] = $user['contact'];
                 $_SESSION['user_email'] = $user['email'] ?? ''; // Safely add email to session
 
-                // Route them to their specific dashboard
+                // Route them to their specific dashboard based on Role-Based Access Control (RBAC)
                 switch ($user['role']) {
                     case 'admin':
-                        header("Location: index.php");
+                        header("Location: admin_portal.php");
                         break;
                     case 'doctor':
                         header("Location: doctor_portal.php");
@@ -47,6 +47,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     case 'patient':
                         header("Location: patient_portal.php");
                         break;
+                    case 'pending_doctor':
+                        // If a doctor hasn't been approved yet, don't let them in!
+                        session_destroy();
+                        header("Location: login.php?error=pending");
+                        exit();
+                    case 'suspended':
+                        // If a doctor was suspended by the Admin, lock them out!
+                        session_destroy();
+                        header("Location: login.php?error=suspended");
+                        exit();
                 }
                 exit();
             } else {
@@ -55,6 +65,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         } catch (PDOException $e) {
             $error = "System Error: " . $e->getMessage();
         }
+    }
+}
+
+// Catch URL errors for locked-out accounts
+if(isset($_GET['error'])) {
+    if ($_GET['error'] == 'pending') {
+        $error = "Your medical account is currently under review by the Admin team. You will be notified once approved.";
+    } elseif ($_GET['error'] == 'suspended') {
+        $error = "Access Denied. Your account has been suspended by the Administration.";
     }
 }
 ?>

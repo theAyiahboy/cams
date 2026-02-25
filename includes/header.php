@@ -2,8 +2,10 @@
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
-// Determine layout based on session, not file name
-$showSidebar = isset($_SESSION['user_role']) && ($_SESSION['user_role'] == 'admin' || $_SESSION['user_role'] == 'doctor');
+
+// Logic: Show sidebar for Admin and Doctor, but keep Patient/Guest on the clean top-nav layout
+$role = isset($_SESSION['user_role']) ? $_SESSION['user_role'] : 'guest';
+$showSidebar = ($role == 'admin' || $role == 'doctor');
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -29,7 +31,7 @@ $showSidebar = isset($_SESSION['user_role']) && ($_SESSION['user_role'] == 'admi
             background-color: var(--light); 
             color: var(--dark); 
             margin: 0; 
-            display: block; /* FIX: Changed from flex to block */
+            display: block; 
         }
         
         /* Sidebar Styling */
@@ -46,7 +48,7 @@ $showSidebar = isset($_SESSION['user_role']) && ($_SESSION['user_role'] == 'admi
             z-index: 1001;
         }
 
-        /* Top Header for Guests */
+        /* Top Header for Guests & Patients */
         .public-header {
             background: white;
             padding: 1rem 5%;
@@ -70,15 +72,18 @@ $showSidebar = isset($_SESSION['user_role']) && ($_SESSION['user_role'] == 'admi
         /* Navigation */
         .btn-nav { background: var(--primary); color: white !important; padding: 0.6rem 1.2rem; border-radius: 8px; font-weight: 700; text-decoration: none; }
         nav ul { list-style: none; display: flex; gap: 2rem; margin: 0; padding: 0; }
-        .sidebar nav ul { flex-direction: column; gap: 1rem; }
+        .sidebar nav ul { flex-direction: column; gap: 0.5rem; }
+        
+        .sidebar-label { color: #64748b; font-size: 0.75rem; text-transform: uppercase; font-weight: 800; letter-spacing: 1px; margin: 1.5rem 0 0.5rem; }
+
         nav ul li a { text-decoration: none; color: #64748b; font-weight: 600; }
-        .sidebar nav ul li a { color: #cbd5e1; display: block; transition: 0.3s; }
-        .sidebar nav ul li a:hover { color: white; }
+        .sidebar nav ul li a { color: #cbd5e1; display: block; padding: 10px 15px; border-radius: 8px; transition: 0.3s; }
+        .sidebar nav ul li a:hover { color: white; background: rgba(255,255,255,0.05); }
 
         /* Main Content Adjustments */
         .main-content {
             padding: 2rem 5%;
-            min-height: 85vh; /* Pushes footer down */
+            min-height: 85vh;
             box-sizing: border-box;
         }
 
@@ -91,7 +96,7 @@ $showSidebar = isset($_SESSION['user_role']) && ($_SESSION['user_role'] == 'admi
             margin-left: 0;
             max-width: 1200px;
             margin: 0 auto;
-            padding-top: 100px; /* Leaves space for the fixed public header */
+            padding-top: 100px; 
         }
     </style>
 </head>
@@ -103,9 +108,18 @@ $showSidebar = isset($_SESSION['user_role']) && ($_SESSION['user_role'] == 'admi
         <a href="index.php" class="logo">Swift<span>Care</span></a>
         <nav>
             <ul>
-                <li><a href="index.php">📊 Dashboard</a></li>
-                <li><a href="view.php">📋 Patient Registry</a></li>
-                <li><a href="add.php">➕ Add Appointment</a></li>
+                <?php if ($role === 'admin'): ?>
+                    <div class="sidebar-label">Management</div>
+                    <li><a href="admin_portal.php">📊 Command Center</a></li>
+                    <li><a href="view.php">📋 Master Registry</a></li>
+                    <li><a href="add.php">➕ Add Appointment</a></li>
+                    
+                <?php elseif ($role === 'doctor'): ?>
+                    <div class="sidebar-label">Medical Tools</div>
+                    <li><a href="doctor_portal.php">⚕️ Triage Queue</a></li>
+                    <li><a href="view.php">📋 Patient History</a></li>
+                <?php endif; ?>
+
                 <li style="margin-top: 2rem; border-top: 1px solid #334155; padding-top: 1rem;">
                     <a href="logout.php" style="color: #fb7185;">🚪 Logout</a>
                 </li>
@@ -117,8 +131,14 @@ $showSidebar = isset($_SESSION['user_role']) && ($_SESSION['user_role'] == 'admi
         <a href="index.php" class="logo">Swift<span>Care</span></a>
         <nav>
             <ul>
-                <li><a href="book.php" class="btn-nav">Book Now</a></li>
-                <li><a href="login.php">Patient Login</a></li>
+                <?php if ($role === 'patient'): ?>
+                    <li><a href="patient_portal.php">Dashboard</a></li>
+                    <li><a href="book.php" class="btn-nav">New Booking</a></li>
+                    <li><a href="logout.php">Logout</a></li>
+                <?php else: ?>
+                    <li><a href="book.php" class="btn-nav">Book Now</a></li>
+                    <li><a href="login.php">Portal Login</a></li>
+                <?php endif; ?>
             </ul>
         </nav>
     </header>
